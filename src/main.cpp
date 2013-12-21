@@ -6,6 +6,6 @@
 
 int main(int argc, char *argv[])
 {
-    google::InitGoogleLogging(NULL);
+    google::InitGoogleLogging(argv[0]);
     return 0;
 }
