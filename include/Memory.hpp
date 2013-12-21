@@ -1,3 +1,11 @@
+/**
+* @file Memory.hpp
+* @brief Manages the memory.
+* @author Lucas Wolford
+* @version 0.1
+* @date 2013-12-21
+*/
+
 #ifndef CHIP8_MEMORY_HPP
 #define CHIP8_MEMORY_HPP
 
