@@ -4,6 +4,6 @@ namespace Chip8
 {
     unsigned char BitUtils::bitQuery(unsigned char data, unsigned char bit)
     {
-        return 0;
+        return data >> bit | 0x1;
     }
 }
