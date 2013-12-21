@@ -9,6 +9,7 @@
 #ifndef CHIP8_BITUTILS_HPP
 #define CHIP8_BITUTILS_HPP
 
+#include <string>
 
 namespace Chip8
 {
@@ -30,6 +31,39 @@ namespace Chip8
             * @return The bit at index bit from data.
             */
             static unsigned char bitQuery(unsigned char data, unsigned char bit);
+
+            /**
+            * @brief Extracts the upper 4 bits of data.
+            *
+            * @param data The byte to extract the upper 4 bits from.
+            *
+            * @return The upper 4 bits of data.
+            */
+            static unsigned char upper(unsigned char data);
+
+            /**
+            * @brief Extracts the lower 4 bits of data.
+            *
+            * @param data The byte to extract the lower 4 bits from.
+            *
+            * @return  The lower 4 bits of data.
+            */
+            static unsigned char lower(unsigned char data);
+
+            /**
+            * @brief Combines data1 and data2, where data1 will be the upper half
+            *        and data 2 will be the lower half.
+            *
+            * @param data1 The upper byte.
+            * @param data2 The lower byte.
+            *
+            * @return The combined bytes of data1 and data2.
+            */
+            static unsigned int combine(unsigned char data1, unsigned char data2);
+
+        private:
+
+            static const std::string _Tag;
     };
 }
 #endif

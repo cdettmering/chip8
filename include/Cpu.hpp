@@ -18,6 +18,20 @@ namespace Chip8
             */
             static Cpu & instance();
 
+            /**
+            * @brief Fetches the next byte from the ROM. Increases
+            *        the PC by 1.
+            *
+            * @return The next byte of the rom.
+            */
+            unsigned char fetch();
+
+
+            /**
+            * @brief Executes the current instruction on the CPU.
+            */
+            void step();
+
         private:
             // For a correct singleton implementation it is necessary to make
             // the constructor, copy constructor and assignment operators private,
@@ -25,6 +39,11 @@ namespace Chip8
             Cpu();
             Cpu(const Cpu &other);
             Cpu & operator=(const Cpu &other);
+
+            unsigned int extractAddress(unsigned char upper, unsigned char lower);
+
+            // Program Counter
+            unsigned int _pc;
     };
 }
 
