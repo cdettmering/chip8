@@ -46,7 +46,26 @@ namespace Chip8
             *
             * @return The key that was pressed.
             */
-            SDL_Scancode waitForKeyPress() const;
+            unsigned char waitForKeyPress() const;
+
+            /**
+            * @brief Checks if the hex representation of the key is valid.
+            *
+            * @param key The hex number of the key.
+            *
+            * @return True if the key is valid, false othewise.
+            */
+            bool isValidKey(unsigned char key) const;
+
+            /**
+            * @brief Converts key to the hex representation.
+            *
+            * @param key The scancode to convert.
+            * @param hex The hex representation will be stored in this variable.
+            *
+            * @return True if hex representation is stored in hex, false otherwise.
+            */
+            bool toHex(SDL_Scancode key, unsigned char &hex) const;
 
             static const SDL_Scancode Key0;
             static const SDL_Scancode Key1;

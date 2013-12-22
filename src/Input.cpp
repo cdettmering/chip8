@@ -59,25 +59,46 @@ namespace Chip8
 
     }
     
-    SDL_Scancode InputManager::waitForKeyPress() const
+    unsigned char InputManager::waitForKeyPress() const
     {
         LOG(INFO) << _Tag << "Waiting for key press";
         bool keypress = false;
-        SDL_Scancode ret = SDL_SCANCODE_0;
+        unsigned char ret = 0;
         while(!keypress) {
             SDL_Event event;
             while(event.type != SDL_KEYDOWN) {
                 SDL_PollEvent(&event);
                 switch(event.type) {
                     case SDL_KEYDOWN:
-                        ret = event.key.keysym.scancode;
-                        keypress = true;
-                        LOG(INFO) << _Tag << "Key press = " << ret;
+                        // Verify the keypress is actually a chip8 key.
+                        unsigned char hex = 0;
+                        if(toHex(event.key.keysym.scancode, hex)) {
+                            ret = hex
+                            keypress = true;
+                            LOG(INFO) << _Tag << "Key press = " << ret;
+                        }
                         break;
                     default:
                         break;
                 }
             }
         }
+        return ret;
+    }
+            
+    bool InputManager::isValidKey(unsigned char key) const
+    {
+        return key >= 0 && key < 0xF;
+    }
+            
+    bool InputManager::toHex(SDL_Scancode key, unsigned char &hex) const
+    {
+        for(unsigned char i = 0; i < 0xF; i++) {
+            if(Keys[i] == key) {
+                hex = i;
+                return true;
+            }
+        }
+        return false;
     }
 }

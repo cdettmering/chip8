@@ -187,6 +187,7 @@ namespace Chip8
                     break;
                 default:
                     LOG(INFO) << _Tag << "Unrecognized second level opcode " << (int) secondLevelOpcode << " for first level opcode " << (int) firstLevelOpcode;
+                    break;
             }
             break;
          // SKIP IF VX VY NOT EQUAL 0x9XY0 - Skips the next instruction is VX != VY
@@ -214,11 +215,66 @@ namespace Chip8
          case 0xD:
             break;
          case 0xE:
+            switch(lower) {
+                // SKIP IF KEY PRESS = VX 0xEX9E - Skip the next instruction if the key with the value VX is pressed.
+                case 0x9E:
+                    if(!isValidKey(dataX)) {
+                        LOG(INFO) << _Tag << dataX << " is not a valid key";
+                        break;
+                    }
+                    if(InputManager::instance().isKeyDown(InputManager::Keys[dataX])) {
+                        skipNextInstruction();
+                    }
+                    break;
+                // SKIP IF KEY NOT PRESS = VX 0xEXA1 - Skip the next instruction if the key with the value VX is not pressed.
+                case 0xA1:
+                    if(!isValidKey(dataX)) {
+                        LOG(INFO) << _Tag << dataX << " is not a valid key";
+                        break;
+                    }
+                    if(!InputManager::instance().isKeyDown(InputManager::Keys[dataX])) {
+                        skipNextInstruction();
+                    }
+                    break;
+                default:
+                    LOG(INFO) << _Tag << "Unrecognized second level opcode " << (int) lower << " for first level opcode " << (int) firstLevelOpcode;
+                    break;
+            }
             break;
          case 0xF:
+            switch(lower) {
+                case 0x07:
+                    break;
+                // WAIT FOR KEY PRESS - Wait for a key press, then store value of key in VX.
+                case 0x0A:
+                    unsigned char key = InputManager::instance().waitForKeyPress();
+                    if(!Memory::instance().setRegister(registerX, key)){
+                        LOG(INFO) << _Tag << "Failed to set data " << key << " in register " << (int) registerX;
+                        break;
+                    }
+                    break;
+                case 0x15:
+                    break;
+                case 0x18:
+                    break;
+                case 0x1E:
+                    break;
+                case 0x29:
+                    break;
+                case 0x33:
+                    break;
+                case 0x55:
+                    break;
+                case 0x65:
+                    break;
+                default:
+                    LOG(INFO) << _Tag << "Unrecognized second level opcode " << (int) lower << " for first level opcode " << (int) firstLevelOpcode;
+                    break;
+            }
             break;
          default:
             LOG(INFO) << _Tag << "First level opcode not recognized " << (int) firstLevelOpcode;
+            break;
         }
     }
 
