@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.8)
 project (Chip8)
 
 find_package (Glog REQUIRED)
+find_package (SDL2 REQUIRED)
 
 set (Chip8 _VERSION_MAJOR 0)
 set (Chip8 _VERSION_MINOR 1)
