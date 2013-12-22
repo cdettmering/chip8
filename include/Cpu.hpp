@@ -28,11 +28,25 @@ namespace Chip8
             */
             unsigned char fetch();
 
-
             /**
             * @brief Executes the current instruction on the CPU.
             */
             void step();
+
+            void jump(unsigned int address);
+
+            /**
+            * @brief Calls the subroutine at address.
+            *
+            * @param address The address of the subroutine to call.
+            */
+            void call(unsigned int address);
+
+            void skipNextInstruction();
+
+            unsigned char add(unsigned char a, unsigned char b) const;
+            unsigned char sub(unsigned char a, unsigned char b) const;
+            unsigned char Cpu::randomByte() const;
 
         private:
             // For a correct singleton implementation it is necessary to make

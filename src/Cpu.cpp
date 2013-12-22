@@ -1,13 +1,17 @@
 #include <Cpu.hpp>
 #include <BitUtils.hpp>
 
+#include <stdlib.h>
+#include <time.h>
+
 namespace Chip8
 {
     const std::string _Tag = "Cpu:";
 
     Cpu::Cpu()
     {
-
+        // Seed random number generator
+        srand(time(NULL));
     }
 
     Cpu & Cpu::instance()
@@ -33,33 +37,179 @@ namespace Chip8
         unsigned char lower = fetch();
         unsigned int address = extractAddress(upper, lower);
         unsigned char firstLevelOpcode = BitUtils::upper(upper);
+        unsigned char secondLevelOpcode = BitUtils::lower(lower);
+        unsigned char registerX = BitUtils::lower(upper);
+        unsigned char registerY = BitUtils::upper(lower);
+            
+        unsigned char dataX = 0;
+        unsigned char dataY = 0;
+        unsigned char data0 = 0;
+
+        if(!Memory::instance().getRegister(registerX, dataX)) {
+            LOG(INFO) << _Tag << "Failed to get data in register " << (int) registerX;
+        }
+        if(!Memory::instance().getRegister(registerY, dataY)) {
+            LOG(INFO) << _Tag << "Failed to get data in register " << (int) registerY;
+        }
+        if(!Memory::instance().getRegister(0x0, data0)) {
+            LOG(INFO) << _Tag << "Failed to get data in register " << (int) 0x0;
+        }
+
+        LOG(INFO) << _Tag << "First level opcode = " << (int) firstLevelOpcode;
 
         switch(firstLevelOpcode) {
          case 0x0:
             break;
+         // JUMP 0x1NNN - Jumps to address NNN.
          case 0x1:
+            jump(address);
             break;
+         // CALL 0x2NNN - Calls the subroutine at address NNN.
          case 0x2:
+            call(address);
             break;
+         // SKIP IF EQUAL 0x3XNN - Skips the next instruction if VX == NN
          case 0x3:
+            if(data == lower) {
+                skipNextInstruction();
+            }
             break;
+         // SKIP IF EQUAL 0x4XNN - Skips the next instruction if VX == NN
          case 0x4:
+            if(data != lower) {
+                skipNextInstruction();
+            }
             break;
+         // SKIP IF REGISTER EQUAL 0x5XY0 - Skips the next instruction if VX == VY
          case 0x5:
+            if(dataX == dataY) {
+                skipNextInstruction();
+            }
             break;
+         // SET REGISTER 0x6xNN - Sets register VX to NN
          case 0x6:
+            if(!Memory::instance().setRegister(registerX, lower)) {
+                LOG(INFO) << _Tag << "Failed to set data " << lower << " in register " << (int) registerX;
+            }
             break;
+         // ADD 0x7XNN - Sets register VX = VX + NN
          case 0x7:
+            unsigned char result = dataX + lower;
+            if(!Memory::instance().setRegister(registerX, result)) {
+                LOG(INFO) << _Tag << "Failed to set data " << result << " in register " << (int) registerX;
+            }
             break;
          case 0x8:
+            switch(secondLevelOpcode) {
+                 // LOAD VX, VY 0x8XY0 - Stores value of register VY in VX
+                case 0x0:
+                    if(!Memory::instance().setRegister(registerX, dataY))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << dataY << " in register " << (int) registerX;
+                    }
+                    break;
+                // OR VX VY 0x8XY1 - Bitwise OR on VX and VY. Store result in VX
+                case 0x1:
+                    unsigned char or = dataX | dataY;
+                    if(!Memory::instance().setRegister(registerX, or))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << or << " in register " << (int) registerX;
+                    }
+                    break;
+                // AND VX VY 0x8XY2 - Bitwise AND on VX and VY. Store result in VX
+                case 0x2:
+                    unsigned char and = dataX & dataY;
+                    if(!Memory::instance().setRegister(registerX, and))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << and << " in register " << (int) registerX;
+                    }
+                    break;
+                case 0x3:
+                // XOR VX VY 0x8XY2 - Bitwise XOR on VX and VY. Store result in VX
+                case 0x1:
+                    unsigned char xor = dataX ^ dataY;
+                    if(!Memory::instance().setRegister(registerX, xor))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << xor << " in register " << (int) registerX;
+                    }
+                    break;
+                // ADD 0x8XY4 - Add VX to VY and store result in VX. If result is > 255
+                //              set VF to 1, otherwise to 0.
+                case 0x4:
+                    unsigned char result = add(dataX, dataY);
+                    if(!Memory::instance().setRegister(registerX, result))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << result << " in register " << (int) registerX;
+                    }
+                    break;
+                // SUB 0x8XY5 - Subtract VY from VX and store result in VX. If VX > VY
+                //              set VF to 1, otherwise to 0.
+                case 0x5:
+                    unsigned char result = sub(dataX, dataY);
+                    if(!Memory::instance().setRegister(registerX, result))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << result << " in register " << (int) registerX;
+                    }
+                    break;
+                // RIGHT SHIFT 0x8XY6 - If least significant bit of VX is 1 set VF to 1,
+                //                      otherwise 0. Then right shift VX.
+                case 0x6:
+                    if(BitUtils::bitQuery(0x0, dataX) == 0x1) {
+                        if(!Memory::instance().setRegister(0xF, 0x1))  {
+                            LOG(INFO) << _Tag << "Could not set carry flag to 1";
+                        }
+                    } else {
+                        if(!Memory::instance().setRegister(0xF, 0x0))  {
+                            LOG(INFO) << _Tag << "Could not set carry flag to 0";
+                        }
+                    }
+                    if(!Memory::instance().setRegister(registerX, dataX >> 1))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << result << " in register " << (int) registerX;
+                    }
+                    break;
+                // SUB 0x8XY5 - Subtract VX from VY and store result in VX. If VY > VX
+                //              set VF to 1, otherwise to 0.
+                case 0x7:
+                    unsigned char result = sub(dataY, dataX);
+                    if(!Memory::instance().setRegister(registerX, result))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << result << " in register " << (int) registerX;
+                    }
+                    break;
+                // LEFT SHIFT 0x8XYE - If most significant bit of VX is 1 set VF to 1,
+                //                     otherwise 0. Then left shift VX.
+                case 0xE:
+                    if(BitUtils::bitQuery(0x7, dataX) == 0x1) {
+                        if(!Memory::instance().setRegister(0xF, 0x1))  {
+                            LOG(INFO) << _Tag << "Could not set carry flag to 1";
+                        }
+                    } else {
+                        if(!Memory::instance().setRegister(0xF, 0x0))  {
+                            LOG(INFO) << _Tag << "Could not set carry flag to 0";
+                        }
+                    }
+                    if(!Memory::instance().setRegister(registerX, dataX << 1))  {
+                        LOG(INFO) << _Tag << "Failed to set data " << result << " in register " << (int) registerX;
+                    }
+                    break;
+                default:
+                    LOG(INFO) << _Tag << "Unrecognized second level opcode " << (int) secondLevelOpcode << " for first level opcode " << (int) firstLevelOpcode;
+            }
             break;
+         // SKIP IF VX VY NOT EQUAL 0x9XY0 - Skips the next instruction is VX != VY
          case 0x9:
+            if(dataX != dataY) {
+                skipNextInstruction();
+            }
             break;
+         // LOAD ADDRESS 0xANNN - Sets the value of register I to NNN
          case 0xA:
+            Memory::instance().setI(address);
             break;
+         // JUMP ADDRESS + V0 0xBNNN - Jumps to address + V0
          case 0xB:
+            jump(address + data0);
             break;
+         // RANDOM NUMBER 0xCXKK - Generate a random byte then and it with KK and store in VX
          case 0xC:
+            unsigned char random = randomByte();
+            unsigned char and = random & lower;
+            if(!Memory::instance().setRegister(registerX, and))  {
+                LOG(INFO) << _Tag << "Failed to set data " << and << " in register " << (int) registerX;
+            }
             break;
          case 0xD:
             break;
@@ -68,8 +218,64 @@ namespace Chip8
          case 0xF:
             break;
          default:
-            LOG(INFO) << _Tag << "First level opcode not recognized " << firstLevelOpcode;
+            LOG(INFO) << _Tag << "First level opcode not recognized " << (int) firstLevelOpcode;
         }
+    }
+
+    void Cpu::jump(unsigned int address)
+    {
+        _pc = address;
+    }
+
+    void Cpu::call(unsigned int address)
+    {
+    }
+
+    void Cpu::skipNextInstruction()
+    {
+        // Fetch next instruction but don't do anything with it.
+        fetch();
+        fetch();
+    }
+            
+    unsigned char Cpu::add(unsigned char a, unsigned char b) const
+    {
+        unsigned int result = (unsigned int) a + (unsigned int) b;
+        if(result > 0xFF) {
+            // Carry occurred set the carry flag
+            if(!Memory::instance().setRegister(0xF, 0x1)) {
+                LOG(INFO) << _Tag << "Could not set carry flag to 1";
+            }
+        } else {
+            // Carry did not occur set the carry flag
+            if(!Memory::instance().setRegister(0xF, 0x0)) {
+                LOG(INFO) << _Tag << "Could not set carry flag to 0";
+            }
+        }
+        return result & 0xFF;
+    }
+
+    unsigned char Cpu::sub(unsigned char a, unsigned char b) const
+    {
+        int result = (int) a - (int) b;
+        if(a > b) {
+            // Set the NOT borrow flag
+            if(!Memory::instance().setRegister(0xF, 0x1)) {
+                LOG(INFO) << _Tag << "Could not set carry flag to 1";
+            }
+        } else {
+            // Borrow occurred set the carry flag
+            result = 0;
+            if(!Memory::instance().setRegister(0xF, 0x0)) {
+                LOG(INFO) << _Tag << "Could not set carry flag to 0";
+            }
+        }
+        return result & 0xFF;
+    }
+
+    unsigned char Cpu::randomByte() const
+    {
+        return rand() % 256;
     }
 
     unsigned int Cpu::extractAddress(unsigned char upper, unsigned char lower)
