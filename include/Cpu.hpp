@@ -1,6 +1,8 @@
 #ifndef CHIP8_CPU_HPP
 #define CHIP8_CPU_HPP
 
+#include <string>
+
 namespace Chip8
 {
     
@@ -44,6 +46,8 @@ namespace Chip8
 
             // Program Counter
             unsigned int _pc;
+
+            static const std::string _Tag;
     };
 }
 
