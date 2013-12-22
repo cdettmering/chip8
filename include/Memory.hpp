@@ -48,9 +48,52 @@ namespace Chip8
             bool write(unsigned int address, unsigned char byte);
 
             /**
+            * @brief Sets the register defined by reg.
+            *
+            * @param reg The register to set. Valid values are 0x0-0xF.
+            *
+            * @return True if the register was set successfully, false otherwise.
+            */
+            bool setRegister(unsigned char reg, unsigned char data);
+
+            /**
+            * @brief Gets the register defined by reg.
+            *
+            * @param reg The register to get. Valid values are 0x0-0xF.
+            * @param data Reference to the variable to write the data from reg to.
+            *
+            * @return True if data contains the data in reg, false otherwise.
+            */
+            bool getRegister(unsigned char reg, unsigned char &data) const;
+
+            /**
+            * @brief Sets register I with data.
+            *
+            * @param data The data to set on register I.
+            */
+            void setI(unsigned int data);
+
+            /**
+            * @brief Gets the data in register I.
+            *
+            * @return  The data in register I.
+            */
+            unsigned int getI() const;
+
+            /**
             * @brief The maximum number of memory addresses.
             */
             static const unsigned int MaxAddress;
+
+            /**
+            * @brief The starting point for register addresses.
+            */
+            static const unsigned char FirstRegisterAddress;
+
+            /**
+            * @brief The ending point for register addresses.
+            */
+            static const unsigned char LastRegisterAddress;
 
         private:
             // For a correct singleton implementation it is necessary to make
@@ -61,8 +104,11 @@ namespace Chip8
             Memory & operator=(const Memory &other);
 
             bool validAddress(unsigned int address) const;
+            bool validRegisterAddress(unsigned char reg) const;
 
             unsigned char _memory[4096];
+            unsigned char _registers[0xF];
+            unsigned int _addressRegister;
     };
 }
 

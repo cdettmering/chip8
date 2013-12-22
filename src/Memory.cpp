@@ -1,7 +1,9 @@
 #include <Memory.hpp>
 namespace Chip8 
 {
-    const unsigned int Memory::MaxAddress = 4095;
+    const unsigned int Memory::MaxAddress = 4096;
+    const unsigned char Memory::FirstRegisterAddress = 0x0;
+    const unsigned char Memory::LastRegisterAddress = 0xF;
 
     Memory::Memory()
     {
@@ -31,9 +33,42 @@ namespace Chip8
         }
         return false;
     }
+    
+    bool Memory::setRegister(unsigned char reg, unsigned char data)
+    {
+        if(validRegisterAddress(reg)) {
+            _registers[reg] = data;
+            return true;
+        }
+        return false;
+    }
+
+    bool Memory::getRegister(unsigned char reg, unsigned char &data) const
+    {
+        if(validRegisterAddress(reg)) {
+            data = _registers[reg];
+            return true;
+        }
+        return false;
+    }
+
+    void Memory::setI(unsigned int data)
+    {
+        _addressRegister = data;
+    }
+
+    unsigned int Memory::getI() const
+    {
+        return _addressRegister;
+    }
 
     bool Memory::validAddress(unsigned int address) const
     {
         return address < MaxAddress;
+    }
+
+    bool Memory::validRegisterAddress(unsigned char reg) const
+    {
+        return reg > FirstRegisterAddress && reg < LastRegisterAddress;
     }
 }
