@@ -1,5 +1,5 @@
 include_directories (${PROJECT_SOURCE_DIR}/include ${GLOG_INCLUDE_DIRS})
-set (HEADERS Memory.hpp Cpu.hpp BitUtils.hpp)
-set (SOURCES main.cpp Memory.cpp Cpu.cpp BitUtils.cpp)
+set (HEADERS Memory.hpp Cpu.hpp BitUtils.hpp FileUtils.hpp)
+set (SOURCES main.cpp Memory.cpp Cpu.cpp BitUtils.cpp FileUtils.cpp)
 add_executable (Chip8 ${SOURCES})
 target_link_libraries(Chip8 ${GLOG_LIBRARIES})
