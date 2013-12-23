@@ -46,7 +46,7 @@ namespace Chip8
 
             unsigned char add(unsigned char a, unsigned char b) const;
             unsigned char sub(unsigned char a, unsigned char b) const;
-            unsigned char Cpu::randomByte() const;
+            unsigned char randomByte() const;
 
         private:
             // For a correct singleton implementation it is necessary to make
