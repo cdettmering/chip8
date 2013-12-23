@@ -69,6 +69,6 @@ namespace Chip8
 
     bool Memory::validRegisterAddress(unsigned char reg) const
     {
-        return reg > FirstRegisterAddress && reg < LastRegisterAddress;
+        return reg > FirstRegisterAddress && reg <= LastRegisterAddress;
     }
 }
