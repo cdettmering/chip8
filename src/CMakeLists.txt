@@ -1,5 +1,5 @@
 include_directories (${PROJECT_SOURCE_DIR}/include ${GLOG_INCLUDE_DIRS} ${SDL2_INCLUDE_DIR})
-set (HEADERS Memory.hpp Cpu.hpp BitUtils.hpp FileUtils.hpp Input.hpp)
-set (SOURCES main.cpp Memory.cpp Cpu.cpp BitUtils.cpp FileUtils.cpp Input.cpp)
+set (HEADERS Memory.hpp Cpu.hpp BitUtils.hpp FileUtils.hpp Input.hpp Video.hpp Fonts.hpp)
+set (SOURCES main.cpp Memory.cpp Cpu.cpp BitUtils.cpp FileUtils.cpp Input.cpp Video.cpp Fonts.cpp)
 add_executable (Chip8 ${SOURCES})
 target_link_libraries(Chip8 ${GLOG_LIBRARIES} ${SDL2_LIBRARY})
