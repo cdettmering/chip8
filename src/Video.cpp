@@ -18,10 +18,8 @@ namespace Chip8
     {
         for(int i = 0; i < 2048; i++) {
             _pixels[i] = 0;
-        } 
-        for(int i = 0; i < 256; i++) {
             _data[i] = 0;
-        }
+        } 
     }
 
     Video & Video::instance()
@@ -43,17 +41,23 @@ namespace Chip8
         }
 
         // Start at point x, y draw the sprite
-        for(int i = 0; i < SpriteWidth; i++) {
-            for(int j = 0; j < height; j++) {
+        for(int j = 0; j < height; j++) {
+            for(int i = 0; i < SpriteWidth; i++) {
                 // XOR pixel
-                int screenPixelIndex = (x + i) + ((y + j) * SpriteWidth);
+                int screenPixelIndex = (x + i) + ((y + j) * Width);
                 int spritePixelIndex = i + (j * SpriteWidth);
-                unsigned char screenPixel = BitUtils::bitQuery(_data[screenPixelIndex], 7 - i);
-                unsigned char spritePixel = BitUtils::bitQuery(sprite[spritePixelIndex], 7 - i);
+                unsigned char screenPixel = _data[screenPixelIndex];
+
+                // The sprite pixel index is the exact bit to grab from the sprite.
+                // However the sprite is stored in byte chunks, so need to divide by SpriteWidth
+                // to grab the correct byte, and then bitquery the correct bit to get the
+                // pixel.
+                unsigned char spritePixel = BitUtils::bitQuery(sprite[spritePixelIndex / SpriteWidth], SpriteWidth - 1 - i);
                 unsigned char result = screenPixel ^ spritePixel;
                 _data[screenPixelIndex] = result;
                 
-                LOG(INFO) << _Tag << "Xoring " << (int) screenPixel << " with " << (int) spritePixel << " result = " << (int) result;
+
+                LOG(INFO) << _Tag << "Xoring " << (int) screenPixel << " with " << (int) spritePixel << " result = " << (int) result << " storing result on screen " << screenPixelIndex;
 
                 if(screenPixel == 0x1 && result == 0x0) {
                     if(!Memory::instance().setRegister(0xF, 0x1)) {
@@ -74,20 +78,18 @@ namespace Chip8
     void Video::copyDataToPixels()
     {
         // Handle 1 byte at a time
-        for(int i = 0; i < Width * Height; i += 8) {
-            for(int j = 0; j < 8; j++) {
+        for(int i = 0; i < Width * Height; i++) {
                 // White
-                if(BitUtils::bitQuery(_data[i], 7 - j) == 0x1) {
+                if(_data[i] == 0x1) {
                     _pixels[i] = SDL_MapRGBA(_format, 255, 255, 255, 255);
                 }
                 // Black
-                else if(BitUtils::bitQuery(_data[i], 7 - j) == 0x0) {
+                else if(_data[i] == 0x0) {
                     _pixels[i] = SDL_MapRGBA(_format, 0, 0, 0, 255);
                 }
                 // Error
                 else {
                     LOG(INFO) << _Tag << "Unknown pixel type";
-                }
             }
         }
     }

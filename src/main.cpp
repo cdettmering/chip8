@@ -40,6 +40,21 @@ int main(int argc, char *argv[])
     Chip8::Video::instance().setPixelFormat(format);
     SDL_Event event;
     Chip8::Video::instance().drawSprite(0, 0, Chip8::Fonts::Zero, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(8, 0, Chip8::Fonts::One, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(16, 0, Chip8::Fonts::Two, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(24, 0, Chip8::Fonts::Three, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(32, 0, Chip8::Fonts::Four, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(40, 0, Chip8::Fonts::Five, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(48, 0, Chip8::Fonts::Six, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(0, 8, Chip8::Fonts::Seven, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(8, 8, Chip8::Fonts::Eight, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(16, 8, Chip8::Fonts::Nine, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(24, 8, Chip8::Fonts::A, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(32, 8, Chip8::Fonts::B, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(40, 8, Chip8::Fonts::C, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(48, 8, Chip8::Fonts::D, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(0, 16, Chip8::Fonts::E, Chip8::Fonts::SpriteHeight);
+    Chip8::Video::instance().drawSprite(8, 16, Chip8::Fonts::F, Chip8::Fonts::SpriteHeight);
     do {
         SDL_PollEvent(&event);
 
