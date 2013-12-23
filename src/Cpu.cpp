@@ -9,7 +9,7 @@
 
 namespace Chip8
 {
-    const std::string _Tag = "Cpu:";
+    const std::string Cpu::_Tag = "Cpu:";
 
     Cpu::Cpu()
     {
@@ -115,27 +115,27 @@ namespace Chip8
                 // OR VX VY 0x8XY1 - Bitwise OR on VX and VY. Store result in VX
                 case 0x1:
                     {
-                        unsigned char or = dataX | dataY;
-                        if(!Memory::instance().setRegister(registerX, or))  {
-                            LOG(INFO) << _Tag << "Failed to set data " << or << " in register " << (int) registerX;
+                        unsigned char resultOr = dataX | dataY;
+                        if(!Memory::instance().setRegister(registerX, resultOr))  {
+                            LOG(INFO) << _Tag << "Failed to set data " << resultOr << " in register " << (int) registerX;
                         }
                     }
                     break;
                 // AND VX VY 0x8XY2 - Bitwise AND on VX and VY. Store result in VX
                 case 0x2:
                     {
-                        unsigned char and = dataX & dataY;
-                        if(!Memory::instance().setRegister(registerX, and))  {
-                            LOG(INFO) << _Tag << "Failed to set data " << and << " in register " << (int) registerX;
+                        unsigned char resultAnd = dataX & dataY;
+                        if(!Memory::instance().setRegister(registerX, resultAnd))  {
+                            LOG(INFO) << _Tag << "Failed to set data " << resultAnd << " in register " << (int) registerX;
                         }
                     }
                     break;
                 // XOR VX VY 0x8XY2 - Bitwise XOR on VX and VY. Store result in VX
                 case 0x3:
                     {
-                        unsigned char xor = dataX ^ dataY;
-                        if(!Memory::instance().setRegister(registerX, xor))  {
-                            LOG(INFO) << _Tag << "Failed to set data " << xor << " in register " << (int) registerX;
+                        unsigned char resultXor = dataX ^ dataY;
+                        if(!Memory::instance().setRegister(registerX, resultXor))  {
+                            LOG(INFO) << _Tag << "Failed to set data " << resultXor << " in register " << (int) registerX;
                         }
                     }
                     break;
@@ -224,9 +224,9 @@ namespace Chip8
          case 0xC:
             {
                 unsigned char random = randomByte();
-                unsigned char and = random & lower;
-                if(!Memory::instance().setRegister(registerX, and))  {
-                    LOG(INFO) << _Tag << "Failed to set data " << and << " in register " << (int) registerX;
+                unsigned char resultAnd = random & lower;
+                if(!Memory::instance().setRegister(registerX, resultAnd))  {
+                    LOG(INFO) << _Tag << "Failed to set data " << resultAnd << " in register " << (int) registerX;
                 }
                 break;
             }

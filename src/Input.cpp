@@ -31,6 +31,12 @@ namespace Chip8
     {
 
     }
+            
+    InputManager & InputManager::instance()
+    {
+        static InputManager instance;
+        return instance;
+    }
 
     bool InputManager::isKeyDown(SDL_Scancode key) const
     {
@@ -70,14 +76,16 @@ namespace Chip8
                 SDL_PollEvent(&event);
                 switch(event.type) {
                     case SDL_KEYDOWN:
+                    {
                         // Verify the keypress is actually a chip8 key.
                         unsigned char hex = 0;
                         if(toHex(event.key.keysym.scancode, hex)) {
-                            ret = hex
+                            ret = hex;
                             keypress = true;
                             LOG(INFO) << _Tag << "Key press = " << ret;
                         }
                         break;
+                    }
                     default:
                         break;
                 }
