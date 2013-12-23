@@ -2,6 +2,7 @@
 #include <BitUtils.hpp>
 #include <Memory.hpp>
 #include <Input.hpp>
+#include <Video.hpp>
 
 #include <glog/logging.h>
 #include <stdlib.h>
@@ -12,7 +13,14 @@ namespace Chip8
     const std::string Cpu::_Tag = "Cpu:";
 
     Cpu::Cpu()
+        : _pc(0),
+          _sp(-1)
     {
+        // Clear stack.
+        for(int i = 0; i < 16; i++) {
+            _stack[i] = 0;
+        }
+
         // Seed random number generator
         srand(time(NULL));
     }
@@ -27,20 +35,21 @@ namespace Chip8
     {
         // Read next memory address past the PC
         unsigned char byte = 0;
-        if(Memory::instance().read(_pc, byte)) {
+        if(!Memory::instance().read(_pc, byte)) {
             LOG(FATAL) << _Tag << "Failed to fetch next instruction at " << _pc;
         }
         _pc++;
         return byte;
-    }
+}
 
     void Cpu::step()
     {
         unsigned char upper = fetch();
         unsigned char lower = fetch();
+        LOG(INFO) << "Executing opcode " << (int) upper << " " << (int) lower;
         unsigned int address = extractAddress(upper, lower);
         unsigned char firstLevelOpcode = BitUtils::upper(upper);
-        unsigned char secondLevelOpcode = BitUtils::lower(lower);
+        unsigned char lowerLower = BitUtils::lower(lower);
         unsigned char registerX = BitUtils::lower(upper);
         unsigned char registerY = BitUtils::upper(lower);
             
@@ -58,10 +67,18 @@ namespace Chip8
             LOG(INFO) << _Tag << "Failed to get data in register " << (int) 0x0;
         }
 
-        LOG(INFO) << _Tag << "First level opcode = " << (int) firstLevelOpcode;
-
         switch(firstLevelOpcode) {
          case 0x0:
+            switch(lower) {
+                // CLEAR SCREEN 0x00E0 - Clears the screen to black.
+                case 0xE0:
+                    Video::instance().clearScreen();
+                    break;
+                // RETURN 0x00EE - Returns from a subroutine.
+                case 0xEE:
+                    ret();
+                    break;
+            }
             break;
          // JUMP 0x1NNN - Jumps to address NNN.
          case 0x1:
@@ -105,7 +122,7 @@ namespace Chip8
             }
             break;
          case 0x8:
-            switch(secondLevelOpcode) {
+            switch(lowerLower) {
                  // LOAD VX, VY 0x8XY0 - Stores value of register VY in VX
                 case 0x0:
                     if(!Memory::instance().setRegister(registerX, dataY))  {
@@ -202,7 +219,7 @@ namespace Chip8
                     }
                     break;
                 default:
-                    LOG(INFO) << _Tag << "Unrecognized second level opcode " << (int) secondLevelOpcode << " for first level opcode " << (int) firstLevelOpcode;
+                    LOG(INFO) << _Tag << "Unrecognized second level opcode " << (int) lowerLower << " for first level opcode " << (int) firstLevelOpcode;
                     break;
             }
             break;
@@ -214,6 +231,7 @@ namespace Chip8
             break;
          // LOAD ADDRESS 0xANNN - Sets the value of register I to NNN
          case 0xA:
+            LOG(INFO) << "Setting register I to " << address;
             Memory::instance().setI(address);
             break;
          // JUMP ADDRESS + V0 0xBNNN - Jumps to address + V0
@@ -230,8 +248,27 @@ namespace Chip8
                 }
                 break;
             }
+         // DRAW SPRITE 0xDXYN - Draws a sprite of height N at coordinate (X, Y). The sprite is loaded from memory address I.
          case 0xD:
+         {
+            // Read sprite from memory
+            unsigned char n = BitUtils::lower(lower);
+            LOG(INFO) << "Loading " << (int) n << " byte sprite from location " << Memory::instance().getI();
+            unsigned char *sprite = new unsigned char[n];
+            for(int i = 0; i < n; i++) {
+                unsigned char data = 0;
+                if(!Memory::instance().read(Memory::instance().getI() + i, data)) {
+                    LOG(INFO) << _Tag << "Failed to read memory at address " << Memory::instance().getI() + i;
+                }
+                sprite[i] = data;
+            }
+
+            // Draw sprite onto screen
+            Video::instance().drawSprite(dataX, dataY, sprite, n);
+            delete[] sprite;
+           
             break;
+         }
          case 0xE:
             switch(lower) {
                 // SKIP IF KEY PRESS = VX 0xEX9E - Skip the next instruction if the key with the value VX is pressed.
@@ -280,6 +317,7 @@ namespace Chip8
                 case 0x1E:
                     {
                         unsigned int result = Memory::instance().getI() + dataX;
+                        LOG(INFO) << "Setting register I original = " << Memory::instance().getI() << " new = " << result;
                         Memory::instance().setI(result);
                     }
                     break;
@@ -339,15 +377,28 @@ namespace Chip8
 
     void Cpu::jump(unsigned int address)
     {
+        LOG(INFO) << _Tag << "Jump to address " << address;
         _pc = address;
     }
 
     void Cpu::call(unsigned int address)
     {
+        LOG(INFO) << _Tag << "Call subroutine at address " << address;
+        _sp++;
+        _stack[_sp] = _pc;
+        jump(address);
+    }
+
+    void Cpu::ret()
+    {
+        LOG(INFO) << _Tag << "Return from subroutine ";
+        jump(_stack[_sp]);
+        _sp--;
     }
 
     void Cpu::skipNextInstruction()
     {
+        LOG(INFO) << _Tag << "Skip next instruction";
         // Fetch next instruction but don't do anything with it.
         fetch();
         fetch();

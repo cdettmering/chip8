@@ -2,6 +2,7 @@
 namespace Chip8 
 {
     const unsigned int Memory::MaxAddress = 4096;
+    const unsigned int Memory::StartAddress = 0x200;
     const unsigned char Memory::FirstRegisterAddress = 0x0;
     const unsigned char Memory::LastRegisterAddress = 0xF;
 
@@ -69,6 +70,6 @@ namespace Chip8
 
     bool Memory::validRegisterAddress(unsigned char reg) const
     {
-        return reg > FirstRegisterAddress && reg <= LastRegisterAddress;
+        return reg >= FirstRegisterAddress && reg <= LastRegisterAddress;
     }
 }

@@ -86,6 +86,11 @@ namespace Chip8
             static const unsigned int MaxAddress;
 
             /**
+            * @brief The address the interpreter starts executing at.
+            */
+            static const unsigned int StartAddress;
+
+            /**
             * @brief The starting point for register addresses.
             */
             static const unsigned char FirstRegisterAddress;

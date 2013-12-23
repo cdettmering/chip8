@@ -16,10 +16,6 @@ namespace Chip8
     Video::Video()
         : _format(0)
     {
-        for(int i = 0; i < 2048; i++) {
-            _pixels[i] = 0;
-            _data[i] = 0;
-        } 
     }
 
     Video & Video::instance()
@@ -37,13 +33,15 @@ namespace Chip8
     {
         // Don't handle wrapping yet
         if(x < 0 || y < 0 || x + SpriteWidth >= Width || y + height >= Height) {
+            LOG(INFO) << _Tag << "Wrapping not yet implemented. Not drawing sprite.";
             return;
         }
+
+        LOG(INFO) << _Tag << "Drawing sprite to location (" << x << ", " << y << ")";
 
         // Start at point x, y draw the sprite
         for(int j = 0; j < height; j++) {
             for(int i = 0; i < SpriteWidth; i++) {
-                // XOR pixel
                 int screenPixelIndex = (x + i) + ((y + j) * Width);
                 int spritePixelIndex = i + (j * SpriteWidth);
                 unsigned char screenPixel = _data[screenPixelIndex];
@@ -53,12 +51,14 @@ namespace Chip8
                 // to grab the correct byte, and then bitquery the correct bit to get the
                 // pixel.
                 unsigned char spritePixel = BitUtils::bitQuery(sprite[spritePixelIndex / SpriteWidth], SpriteWidth - 1 - i);
+
+                // Chip8 draws sprites by xoring the pixel and saving the result.
+                // 1 means the pixel is active, 0 means the pixel is inactive.
+                // If the draw causes any pixels to be set from 1 to 0, then
+                // register F needs to be set to 1.
                 unsigned char result = screenPixel ^ spritePixel;
                 _data[screenPixelIndex] = result;
                 
-
-                LOG(INFO) << _Tag << "Xoring " << (int) screenPixel << " with " << (int) spritePixel << " result = " << (int) result << " storing result on screen " << screenPixelIndex;
-
                 if(screenPixel == 0x1 && result == 0x0) {
                     if(!Memory::instance().setRegister(0xF, 0x1)) {
                         LOG(INFO) << _Tag << "Failed to set data " << 0x1 << " to register " << 0xF;
@@ -67,6 +67,15 @@ namespace Chip8
             }
         }
 
+        // Copy the data to the screen, after drawing.
+        copyDataToPixels();
+    }
+
+    void Video::clearScreen()
+    {
+        for(int i = 0; i < Width * Height; i++) {
+            _data[i] = 0;
+        } 
         copyDataToPixels();
     }
             

@@ -48,6 +48,12 @@ namespace Chip8
             void drawSprite(int x, int y, const unsigned char *sprite, int height);
 
             /**
+            * @brief Clears the screen to black. (NOTE: It's up to the Chip8
+            *        programmer to clear the screen at startup.)
+            */
+            void clearScreen();
+
+            /**
             * @brief Sets the pixel format for determining what the pixel ints
             *        look like.
             *

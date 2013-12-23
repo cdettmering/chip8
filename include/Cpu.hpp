@@ -33,6 +33,11 @@ namespace Chip8
             */
             void step();
 
+            /**
+            * @brief Jumps execution to address.
+            *
+            * @param address The memory address to jump to.
+            */
             void jump(unsigned int address);
 
             /**
@@ -42,10 +47,41 @@ namespace Chip8
             */
             void call(unsigned int address);
 
+            /**
+            * @brief Returns from the current subroutine.
+            */
+            void ret();
+
+            /**
+            * @brief Skips the next Chip8 instruction (2 bytes).
+            */
             void skipNextInstruction();
 
+            /**
+            * @brief Adds a + b. Sets VF to 1 if a carry occurred when adding.
+            *
+            * @param a First number.
+            * @param b Second number.
+            *
+            * @return a + b
+            */
             unsigned char add(unsigned char a, unsigned char b) const;
+
+            /**
+            * @brief Subtracts a - b. Sets VF to 1 if NO borrow occurred when subtracting.
+            *
+            * @param a First number.
+            * @param b Second number.
+            *
+            * @return a - b
+            */
             unsigned char sub(unsigned char a, unsigned char b) const;
+
+            /**
+            * @brief Generates a random byte (0-255)
+            *
+            * @return A number between 0 - 255
+            */
             unsigned char randomByte() const;
 
         private:
@@ -55,11 +91,15 @@ namespace Chip8
             Cpu();
             Cpu(const Cpu &other);
             Cpu & operator=(const Cpu &other);
-
+                
+            // Extracts the 16 bit address out of the instruction defined by upper + lower
             unsigned int extractAddress(unsigned char upper, unsigned char lower);
 
-            // Program Counter
-            unsigned int _pc;
+            // Program Counter and Stack Pointer
+            int _pc;
+            int _sp;
+
+            unsigned int _stack[16];
 
             static const std::string _Tag;
     };
