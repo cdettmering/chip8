@@ -65,7 +65,7 @@ namespace Chip8
             *
             * @return True if hex representation is stored in hex, false otherwise.
             */
-            bool toHex(SDL_Scancode key, unsigned char &hex) const;
+            bool toHex(const SDL_Scancode &key, unsigned char &hex) const;
 
             static const SDL_Scancode Key0;
             static const SDL_Scancode Key1;

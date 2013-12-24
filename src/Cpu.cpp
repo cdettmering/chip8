@@ -3,6 +3,7 @@
 #include <Memory.hpp>
 #include <Input.hpp>
 #include <Video.hpp>
+#include <Timers.hpp>
 
 #include <glog/logging.h>
 #include <stdlib.h>
@@ -298,7 +299,11 @@ namespace Chip8
             break;
          case 0xF:
             switch(lower) {
+                // LOAD DELAY TIMER INTO REGISTER 0xFX07 - Loads the value of DT into VX.
                 case 0x07:
+                    if(!Memory::instance().setRegister(registerX, Timers::instance().getDelayTimer())) {
+                        LOG(INFO) << _Tag << "Failed to set data " << Timers::instance().getDelayTimer() << " in register " << (int) registerX;
+                    }
                     break;
                 // WAIT FOR KEY PRESS - Wait for a key press, then store value of key in VX.
                 case 0x0A:
@@ -309,9 +314,13 @@ namespace Chip8
                         }
                     }
                     break;
+                // LOAD REGISTER INTO DELAY TIMER 0xFX15 - Loads the value in VX into DT.
                 case 0x15:
+                    Timers::instance().setDelayTimer(dataX);
                     break;
+                // LOAD REGISTER INTO SOUND TIMER 0xFX18 - Loads the value in VX into ST.
                 case 0x18:
+                    Timers::instance().setSoundTimer(dataX);
                     break;
                 // ADD ADDRESS, VX 0xFX1E - Add VX to I and store result in I.
                 case 0x1E:

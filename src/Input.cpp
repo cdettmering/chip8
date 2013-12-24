@@ -99,7 +99,7 @@ namespace Chip8
         return key >= 0 && key < 0xF;
     }
             
-    bool InputManager::toHex(SDL_Scancode key, unsigned char &hex) const
+    bool InputManager::toHex(const SDL_Scancode &key, unsigned char &hex) const
     {
         for(unsigned char i = 0; i < 0xF; i++) {
             if(Keys[i] == key) {

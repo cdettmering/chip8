@@ -4,6 +4,7 @@
 #include <Video.hpp>
 #include <Fonts.hpp>
 #include <FileUtils.hpp>
+#include <Timers.hpp>
 
 #include <SDL.h>
 #include <glog/logging.h>
@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
 
         // Cpu step
         Chip8::Cpu::instance().step();
+        Chip8::Timers::instance().step();
 
         // Render screen
         SDL_RenderClear(renderer);
