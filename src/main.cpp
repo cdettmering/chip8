@@ -20,8 +20,8 @@ int main(int argc, char *argv[])
     if(error < 0) {
         LOG(FATAL) << "Failed to init SDL - " << SDL_GetError(); 
     }
-    //SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Chip8::Video::Width, Chip8::Video::Height, 0);
-    SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Chip8::Video::Width, Chip8::Video::Height, SDL_WINDOW_RESIZABLE);
+    //SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
     if(window == NULL) {
         LOG(FATAL) << "Failed to create window - " << SDL_GetError();
     }
@@ -48,10 +48,22 @@ int main(int argc, char *argv[])
     }
 
     Chip8::Video::instance().setPixelFormat(format);
-    SDL_Event event;
+
+    // Load fonts into memory
+    for(unsigned char  i = 0; i < 0xF + 1; i++) {
+        LOG(INFO) << "Getting font sprite " << (int) i;
+        const unsigned char *sprite = Chip8::Fonts::getSprite(i);
+        for(unsigned char j = 0; j < Chip8::Fonts::SpriteHeight; j++) {
+            unsigned int address = 0x0 + (i * Chip8::Fonts::SpriteHeight) + j;
+            LOG(INFO) << "Loading font sprite byte " << (int) j << " to memory address " << address;
+            if(!Chip8::Memory::instance().write(address, sprite[j])) {
+               LOG(INFO) << "Failed to load font sprite " << (int) i << " into memory address " << address;
+            }
+        } 
+    }
 
     // HARDCODE TEST
-    std::string romName = "IBM.ch8";
+    std::string romName = "PONG";
     LOG(INFO) << "Reading rom " << romName;
     std::vector<unsigned char> rom = Chip8::FileUtils::readRom(romName);
     LOG(INFO) << "Rom size = " << rom.size();
@@ -71,7 +83,17 @@ int main(int argc, char *argv[])
     // Jump to start of rom
     Chip8::Cpu::instance().jump(Chip8::Memory::StartAddress);
 
+    SDL_Event event;
+    Uint32 lastFrame = SDL_GetTicks();
+    Uint32 sixtyFrame = 1000 / 60;
     do {
+        Uint32 currentFrame = SDL_GetTicks();
+        Uint32 elapsed = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        if(elapsed < sixtyFrame) {
+            SDL_Delay(sixtyFrame - elapsed);
+        }
+
         // Handle event
         SDL_PollEvent(&event);
         switch(event.type) {

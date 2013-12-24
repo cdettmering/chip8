@@ -330,8 +330,14 @@ namespace Chip8
                         Memory::instance().setI(result);
                     }
                     break;
+                // LOAD FONT SPRITE ADDRESS 0xFX29 - Set I = address of Font VX.
                 case 0x29:
+                {
+                    unsigned int fontAddress = Memory::instance().getFontAddress(dataX);
+                    LOG(INFO) << "Font address for " << (int) dataX << " = " << fontAddress;
+                    Memory::instance().setI(Memory::instance().getFontAddress(dataX));
                     break;
+                }
                 // BCD 0xFX33 - Convert VX to Binary Coded Decimal, then store result in I, I + 1, I + 2.
                 case 0x33:
                     {

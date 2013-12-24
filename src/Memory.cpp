@@ -1,4 +1,6 @@
 #include <Memory.hpp>
+#include <Fonts.hpp>
+
 namespace Chip8 
 {
     const unsigned int Memory::MaxAddress = 4096;
@@ -61,6 +63,12 @@ namespace Chip8
     unsigned int Memory::getI() const
     {
         return _addressRegister;
+    }
+            
+    unsigned int Memory::getFontAddress(unsigned char hex) const
+    {
+        // Fonts are loaded at 0x0 and have a byte size of Fonts::SpriteHeight.
+        return 0x0 + hex * Fonts::SpriteHeight;
     }
 
     bool Memory::validAddress(unsigned int address) const

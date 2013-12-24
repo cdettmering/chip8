@@ -8,6 +8,9 @@
 
 #ifndef CHIP8_FONTS_HPP
 #define CHIP8_FONTS_HPP
+
+#include <vector>
+
 namespace Chip8
 {
 
@@ -27,6 +30,13 @@ namespace Chip8
             * @return Array of bytes that is guranteed to be of length FontSpriteSize.
             */
             static const unsigned char * getSprite(unsigned char hex);
+
+            /**
+            * @brief Gets the full list of font sprites.
+            *
+            * @return Vector of font sprites.
+            */
+            static std::vector<const unsigned char *> getFonts();
 
             // Spite declaratins for each single digit hex number.
             static const unsigned char Zero[];
@@ -48,6 +58,9 @@ namespace Chip8
 
             // The number of rows he Font sprites contain. Each row is 8 bits.
             static const unsigned char SpriteHeight;
+
+        private:
+            static std::vector<const unsigned char *> _fonts;
     };
 }
 #endif

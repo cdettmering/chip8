@@ -81,6 +81,15 @@ namespace Chip8
             unsigned int getI() const;
 
             /**
+            * @brief Gets the memory address for the font letter denoted by hex.
+            *
+            * @param hex The font letter to get.
+            *
+            * @return The starting memory address of hex.
+            */
+            unsigned int getFontAddress(unsigned char hex) const;
+
+            /**
             * @brief The maximum number of memory addresses.
             */
             static const unsigned int MaxAddress;

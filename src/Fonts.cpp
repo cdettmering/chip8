@@ -2,11 +2,37 @@
 
 namespace Chip8
 {
+    std::vector<const unsigned char *> Fonts::_fonts;
     const unsigned char * Fonts::getSprite(unsigned char hex)
     {
-        if(hex < 0 || hex >= 0xF) {
+        if(hex < 0 || hex > 0xF) {
             return 0;
         }
+        return getFonts().at(hex);
+    }
+
+    std::vector<const unsigned char *> Fonts::getFonts()
+    {
+        if(_fonts.size() == 0) {
+            _fonts.push_back(Zero);
+            _fonts.push_back(One);
+            _fonts.push_back(Two);
+            _fonts.push_back(Three);
+            _fonts.push_back(Four);
+            _fonts.push_back(Five);
+            _fonts.push_back(Six);
+            _fonts.push_back(Seven);
+            _fonts.push_back(Eight);
+            _fonts.push_back(Nine);
+            _fonts.push_back(A);
+            _fonts.push_back(B);
+            _fonts.push_back(C);
+            _fonts.push_back(D);
+            _fonts.push_back(E);
+            _fonts.push_back(F);
+        }
+
+        return _fonts;
     }
 
     const unsigned char Fonts::Zero[] = { 0xF0, 0x90, 0x90, 0x90, 0xF0 };
