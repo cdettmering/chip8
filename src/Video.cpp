@@ -31,10 +31,12 @@ namespace Chip8
             
     void Video::drawSprite(int x, int y, const unsigned char *sprite, int height)
     {
-        // Don't handle wrapping yet
-        if(x < 0 || y < 0 || x + SpriteWidth >= Width || y + height >= Height) {
-            LOG(INFO) << _Tag << "Wrapping not yet implemented. Not drawing sprite.";
-            return;
+        // Wrap when the coordinates are negative.
+        if(x < 0) {
+            x = (Width - 1) + x;
+        }
+        if(y < 0) {
+            y = (Height - 1) + y;
         }
 
         LOG(INFO) << _Tag << "Drawing sprite to location (" << x << ", " << y << ")";
@@ -42,7 +44,17 @@ namespace Chip8
         // Start at point x, y draw the sprite
         for(int j = 0; j < height; j++) {
             for(int i = 0; i < SpriteWidth; i++) {
-                int screenPixelIndex = (x + i) + ((y + j) * Width);
+                // Wrap when coordinates are greater than Width or Height.
+                int screenPixelX = x + i;
+                if(x > (Width - 1)) {
+                    screenPixelX = screenPixelX % (Width - 1);
+                }
+                int screenPixelY = y + j;
+                if(y > (Height - 1)) {
+                    screenPixelY = screenPixelY % (Height - 1);
+                }
+                screenPixelY *= Width;
+                int screenPixelIndex = screenPixelX + screenPixelY;
                 int spritePixelIndex = i + (j * SpriteWidth);
                 unsigned char screenPixel = _data[screenPixelIndex];
 

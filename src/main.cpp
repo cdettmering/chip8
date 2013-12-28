@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     }
 
     // HARDCODE TEST
-    std::string romName = "PONG";
+    std::string romName = "PONG2";
     LOG(INFO) << "Reading rom " << romName;
     std::vector<unsigned char> rom = Chip8::FileUtils::readRom(romName);
     LOG(INFO) << "Rom size = " << rom.size();
