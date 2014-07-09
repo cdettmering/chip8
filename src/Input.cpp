@@ -6,21 +6,21 @@
 
 namespace Chip8
 {
-    const SDL_Scancode InputManager::Key0 = SDL_SCANCODE_1;
-    const SDL_Scancode InputManager::Key1 = SDL_SCANCODE_2;
-    const SDL_Scancode InputManager::Key2 = SDL_SCANCODE_3;
-    const SDL_Scancode InputManager::Key3 = SDL_SCANCODE_4;
+    const SDL_Scancode InputManager::Key0 = SDL_SCANCODE_X;
+    const SDL_Scancode InputManager::Key1 = SDL_SCANCODE_1;
+    const SDL_Scancode InputManager::Key2 = SDL_SCANCODE_2;
+    const SDL_Scancode InputManager::Key3 = SDL_SCANCODE_3;
     const SDL_Scancode InputManager::Key4 = SDL_SCANCODE_Q;
     const SDL_Scancode InputManager::Key5 = SDL_SCANCODE_W;
     const SDL_Scancode InputManager::Key6 = SDL_SCANCODE_E;
-    const SDL_Scancode InputManager::Key7 = SDL_SCANCODE_R;
-    const SDL_Scancode InputManager::Key8 = SDL_SCANCODE_A;
-    const SDL_Scancode InputManager::Key9 = SDL_SCANCODE_S;
-    const SDL_Scancode InputManager::KeyA = SDL_SCANCODE_D;
-    const SDL_Scancode InputManager::KeyB = SDL_SCANCODE_F;
-    const SDL_Scancode InputManager::KeyC = SDL_SCANCODE_Z;
-    const SDL_Scancode InputManager::KeyD = SDL_SCANCODE_X;
-    const SDL_Scancode InputManager::KeyE = SDL_SCANCODE_C;
+    const SDL_Scancode InputManager::Key7 = SDL_SCANCODE_A;
+    const SDL_Scancode InputManager::Key8 = SDL_SCANCODE_S;
+    const SDL_Scancode InputManager::Key9 = SDL_SCANCODE_D;
+    const SDL_Scancode InputManager::KeyA = SDL_SCANCODE_Z;
+    const SDL_Scancode InputManager::KeyB = SDL_SCANCODE_C;
+    const SDL_Scancode InputManager::KeyC = SDL_SCANCODE_4;
+    const SDL_Scancode InputManager::KeyD = SDL_SCANCODE_R;
+    const SDL_Scancode InputManager::KeyE = SDL_SCANCODE_F;
     const SDL_Scancode InputManager::KeyF = SDL_SCANCODE_V;
     const SDL_Scancode InputManager::Keys[] = {Key0, Key1, Key2, Key3, Key4, Key5, Key6,
                                                Key7, Key8, Key9, KeyA, KeyB, KeyC, KeyD,
