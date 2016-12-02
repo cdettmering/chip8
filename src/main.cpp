@@ -9,18 +9,49 @@
 #include <SDL.h>
 #include <glog/logging.h>
 
+#include <iostream>
+
+void printUsage()
+{
+    std::cout << "Usage: chip8 [romfile]" << std::endl;
+}
+
 int main(int argc, char *argv[])
 {
     google::InitGoogleLogging(argv[0]);
 
+    // Setup the filename
+    if(argc != 2) {
+    	printUsage();
+    	return 1;
+    } else {
+        std::string romName = argv[1];
+        LOG(INFO) << "Reading rom " << romName;
+        std::vector<unsigned char> rom = Chip8::FileUtils::readRom(romName);
+        LOG(INFO) << "Rom size = " << rom.size();
+        for(unsigned int i = 0; i < rom.size(); i++) {
+            if(!Chip8::Memory::instance().write(Chip8::Memory::StartAddress + i, rom.at(i))) {
+                LOG(INFO) << "Failed to load rom into " << (int) Chip8::Memory::StartAddress + i;
+                std::cout << "Failed to load rom into " << (int) Chip8::Memory::StartAddress + i << std::endl;
+                return 1;
+            }
+        }
+        LOG(INFO) << "Loaded rom";
+        for(unsigned int i = 0; i < rom.size(); i++) {
+            unsigned char data = 0;
+            Chip8::Memory::instance().read(Chip8::Memory::StartAddress + i, data);
+            LOG(INFO) << (int) data;
+        }
+    }
+
     // Setup SDL.
-    // Chip8 has a render size of 64x32.
-    
+    // Chip8 has a render size of 64x32 
+    int upScale = 24;
     int error = SDL_Init(SDL_INIT_VIDEO);
     if(error < 0) {
         LOG(FATAL) << "Failed to init SDL - " << SDL_GetError(); 
     }
-    SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Chip8::Video::Width, Chip8::Video::Height, SDL_WINDOW_RESIZABLE);
+    SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Chip8::Video::Width * upScale, Chip8::Video::Height * upScale, SDL_WINDOW_RESIZABLE);
     //SDL_Window *window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 0, 0, SDL_WINDOW_FULLSCREEN_DESKTOP);
     if(window == NULL) {
         LOG(FATAL) << "Failed to create window - " << SDL_GetError();
@@ -29,7 +60,8 @@ int main(int argc, char *argv[])
     if(renderer == NULL) {
         LOG(FATAL) << "Failed to create renderer - " << SDL_GetError();
     }
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    SDL_RenderSetScale(renderer, upScale, upScale);
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, 0); 
     error = SDL_RenderSetLogicalSize(renderer, Chip8::Video::Width, Chip8::Video::Height);
     if(error < 0) {
         LOG(FATAL) << "Failed to set render size - " << SDL_GetError(); 
@@ -61,24 +93,6 @@ int main(int argc, char *argv[])
             }
         } 
     }
-
-    // HARDCODE TEST
-    std::string romName = "PONG2";
-    LOG(INFO) << "Reading rom " << romName;
-    std::vector<unsigned char> rom = Chip8::FileUtils::readRom(romName);
-    LOG(INFO) << "Rom size = " << rom.size();
-    for(unsigned int i = 0; i < rom.size(); i++) {
-        if(!Chip8::Memory::instance().write(Chip8::Memory::StartAddress + i, rom.at(i))) {
-            LOG(INFO) << "Failed to load rom into " << (int) Chip8::Memory::StartAddress + i;
-        }
-    }
-    LOG(INFO) << "Loaded rom";
-    for(unsigned int i = 0; i < rom.size(); i++) {
-        unsigned char data = 0;
-        Chip8::Memory::instance().read(Chip8::Memory::StartAddress + i, data);
-        LOG(INFO) << (int) data;
-    }
-    // END HARDCODE TEST
 
     // Jump to start of rom
     Chip8::Cpu::instance().jump(Chip8::Memory::StartAddress);
