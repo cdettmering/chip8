@@ -5,6 +5,7 @@
 #include <Fonts.hpp>
 #include <FileUtils.hpp>
 #include <Timers.hpp>
+#include <Input.hpp>
 
 #include <SDL.h>
 #include <glog/logging.h>
@@ -112,20 +113,33 @@ int main(int argc, char *argv[])
         SDL_PollEvent(&event);
         switch(event.type) {
             case SDL_KEYDOWN:
+                LOG(INFO) << "Key pressed " << event.key.keysym.scancode;
                 if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE) {
+                    LOG(INFO) << "Escape pressed exiting now";
                     SDL_FreeFormat(format);
                     SDL_DestroyTexture(texture);
                     SDL_DestroyRenderer(renderer);
                     SDL_DestroyWindow(window);
                     SDL_Quit();
                     return 0;
+                } else if(Chip8::InputManager::instance().IsWaitingForKeyPress) {
+                    unsigned char hex;
+                    Chip8::InputManager::instance().toHex(event.key.keysym.scancode, hex);
+                    LOG(INFO) << "InputManager waiting for key press key pressed = " << hex;
+                    if(Chip8::InputManager::instance().isValidKey(hex)) {
+                        LOG(INFO) << "Valid key detected, setting register " << Chip8::InputManager::instance().KeyPressRegister;
+                        Chip8::InputManager::instance().IsWaitingForKeyPress = false;
+                        Chip8::Memory::instance().setRegister(Chip8::InputManager::KeyPressRegister, hex);
+                    }
                 }
                 break;
         }
 
-        // Cpu step
-        Chip8::Cpu::instance().step();
-        Chip8::Timers::instance().step();
+        if(!Chip8::InputManager::instance().IsWaitingForKeyPress) {
+            // Cpu step
+            Chip8::Cpu::instance().step();
+            Chip8::Timers::instance().step();
+        }
 
         // Render screen
         SDL_RenderClear(renderer);

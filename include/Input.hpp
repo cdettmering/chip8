@@ -42,13 +42,6 @@ namespace Chip8
             bool anyKeyDown() const;
 
             /**
-            * @brief Halts execution and waits for a keypress.
-            *
-            * @return The key that was pressed.
-            */
-            unsigned char waitForKeyPress() const;
-
-            /**
             * @brief Checks if the hex representation of the key is valid.
             *
             * @param key The hex number of the key.
@@ -84,6 +77,17 @@ namespace Chip8
             static const SDL_Scancode KeyE;
             static const SDL_Scancode KeyF;
             static const SDL_Scancode Keys[];
+
+            /**
+             * @brief Flag telling the CPU to wait for a key press before continuing
+             */
+            static bool IsWaitingForKeyPress;
+
+            /**
+             * @brief Holds the register that the keypress should be stored in
+             */
+            static unsigned char KeyPressRegister;
+
         private:
             InputManager();
             InputManager(const InputManager &other);

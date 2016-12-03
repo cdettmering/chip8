@@ -308,10 +308,9 @@ namespace Chip8
                 // WAIT FOR KEY PRESS - Wait for a key press, then store value of key in VX.
                 case 0x0A:
                     {
-                        unsigned char key = InputManager::instance().waitForKeyPress();
-                        if(!Memory::instance().setRegister(registerX, key)){
-                            LOG(INFO) << _Tag << "Failed to set data " << key << " in register " << (int) registerX;
-                        }
+                        LOG(INFO) << "Waiting for key press at register " << (int) registerX << std::endl;
+                        InputManager::instance().IsWaitingForKeyPress = true;
+                        InputManager::instance().KeyPressRegister = registerX;
                     }
                     break;
                 // LOAD REGISTER INTO DELAY TIMER 0xFX15 - Loads the value in VX into DT.

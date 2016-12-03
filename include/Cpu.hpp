@@ -84,6 +84,11 @@ namespace Chip8
             */
             unsigned char randomByte() const;
 
+            /**
+             * @brief Flag telling the CPU to wait for a key press before continuing
+             */
+            static bool IsWaitingForKeyPress;
+
         private:
             // For a correct singleton implementation it is necessary to make
             // the constructor, copy constructor and assignment operators private,
